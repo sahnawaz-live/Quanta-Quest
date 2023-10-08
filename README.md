@@ -66,7 +66,8 @@ python main.py
 ## Example of the Game 
 
 Add screenshots with information
-
-
+## Future Steps
+We are commited to level up the game, add more quantum operations. We wish to include topics like quantum fourier transformation,  Shor's Algorithm and find a possible way to implement quantum error correction.
+After finishing the educational part, we will also focus on the graphics desing to increase the attractiveness of the game.
 ## Acknowledgements
-I would like to acknowledge [Abhirup Mukherjee](https://abhirup-m.github.io/) for helping me devloping the game.
+I would like to acknowledge [Abhirup Mukherjee](https://abhirup-m.github.io/) for his numerous contributions.
