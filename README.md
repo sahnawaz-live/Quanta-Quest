@@ -3,8 +3,7 @@ Quanta Quest is the journey of a quantum explorer to unlock the treasure by lear
 
 
 ## Introduction and Setting
-In a world interwoven with quantum mysteries, you are a quantum explorer armed with knowledge and curiosity. Your mission is to navigate through quantum challenges and unravel the fabric of reality. To unlock the ultimate treasure, you must solve complex problems and decrypt a hidden message embedded in the quantum realm, using mysterious quantum operations you'll discover along the way.
-
+In a world interwoven with quantum mysteries, you are a quantum explorer armed with knowledge and curiosity. Your mission is to navigate through quantum challenges to unlock the ultimate treasure,by solvingquantu operations and decrypt a hidden message embedded in the quantum realm.
 
 ## Motivation
 Quantum computing is a rapidly evolving field with the potential to revolutionize how we solve complex problems. However, the learning curve can be steep, often requiring a strong background in physics and mathematics. This game aims to break down these barriers by providing a fun, interactive way to grasp the fundamentals of quantum mechanics.
@@ -22,7 +21,7 @@ Quantum computing is a rapidly evolving field with the potential to revolutioniz
 - Discover the intriguing concept of quantum teleportation in a playful environment.
 
 ## Video link of the game
-[Link]()
+[Link](www.sahnawaz.live/quanta-quest)
 
 ## How to Play
 1. The player starts as a quantum explorer searching for a key to unlock a treasure chest.
