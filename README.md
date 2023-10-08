@@ -21,7 +21,7 @@ Quantum computing is a rapidly evolving field with the potential to revolutioniz
 - Discover the intriguing concept of quantum teleportation in a playful environment.
 
 ## Video link of the game
-[Link](https://www.sahnawaz.live/quanta-quest)
+[Quanta Quest](https://www.sahnawaz.live/quanta-quest)
 
 ## How to Play
 1. The player starts as a quantum explorer searching for a key to unlock a treasure chest.
