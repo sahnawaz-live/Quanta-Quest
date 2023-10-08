@@ -1,5 +1,5 @@
 # Quanta Quest
-Quanta Quest is the journey of a quantum explorerto unlock the treasure by learning quantum physics and quantum computing.
+Quanta Quest is the journey of a quantum explorer to unlock the treasure by learning quantum physics and quantum computing.
 
 
 ## Introduction and Setting
@@ -20,6 +20,9 @@ Quantum computing is a rapidly evolving field with the potential to revolutioniz
 - Gain hands-on experience with basic quantum gate operations like X, Z, H, CX (Controlled Not).
 - Learn the concept of quantum superposition and quantum entanglement.
 - Discover the intriguing concept of quantum teleportation in a playful environment.
+
+## Video link of the game
+[Link]()
 
 ## How to Play
 1. The player starts as a quantum explorer searching for a key to unlock a treasure chest.
@@ -63,3 +66,7 @@ python main.py
 ## Example of the Game 
 
 Add screenshots with information
+
+
+## Acknowledgements
+I would like to acknowledge [Abhirup Mukherjee](https://abhirup-m.github.io/) for helping me devloping the game.
