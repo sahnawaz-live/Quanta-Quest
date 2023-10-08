@@ -47,24 +47,27 @@ After mastering various quantum gates and learning about superposition and entan
 Install the qiskit library
 
 ```
-!pip install arcade
+pip install arcade
 ```
 Install the arcade library
 ```
-!pip install qiskit
+pip install qiskit
 ```
 
 Install the game
 ```
-!pip install https://github.com/sahnawaz-live/Quanta-Quest
+pip install https://github.com/sahnawaz-live/Quanta-Quest
 ```
 Run the game
 ```
 python main.py
 ```
 ## Example of the Game 
+![](https://github.com/sahnawaz-live/Quanta-Quest/game_2nd_page.png)
 
+![](https://raw.githubusercontent.com/sahnawaz-live/game_2nd_page.png)
 Add screenshots with information
+
 ## Future Steps
 We are commited to level up the game, add more quantum operations. We wish to include topics like quantum fourier transformation,  Shor's Algorithm and find a possible way to implement quantum error correction.
 After finishing the educational part, we will also focus on the graphics desing to increase the attractiveness of the game.
