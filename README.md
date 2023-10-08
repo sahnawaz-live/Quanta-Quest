@@ -53,7 +53,7 @@ pip install qiskit arcade
 Download and run
 ```
 git clone https://github.com/sahnawaz-live/Quanta-Quest
-cd <foldername>
+cd Quanta-Quest
 python main.py
 ```
 ## Example of the Game 
