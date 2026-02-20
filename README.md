@@ -19,9 +19,19 @@ Quantum computing is a rapidly evolving field with the potential to revolutioniz
 
 ## Learning Objectives
 
+**Original Zones:**
 - Gain hands-on experience with basic quantum gate operations like X, Z, H, CX (Controlled Not).
 - Learn the concept of quantum superposition and quantum entanglement.
 - Discover the intriguing concept of quantum teleportation in a playful environment.
+
+**New Concept Zones:**
+- **Quantum Measurement** — Observe superposition collapse into definite states.
+- **Quantum Interference** — See how applying Hadamard twice cancels out (H² = I).
+- **No-Cloning Theorem** — Discover why quantum states cannot be perfectly copied.
+- **Bell States** — Create all four maximally entangled two-qubit states.
+- **Quantum Randomness** — Generate truly random bits using superposition and measurement.
+- **Deutsch's Algorithm** — Experience the simplest quantum algorithm and quantum speedup.
+- **Quantum Error Detection** — Find and fix corrupted qubits to protect quantum information.
 
 ## Video link of the game
 
@@ -39,10 +49,11 @@ After mastering various quantum gates and learning about superposition and entan
 
 ## Quantum Gates
 
-- **X Gate**: Also known as a Pauli-X gate, it flips the state of a qubit.
-- **Z Gate**: Known as a Pauli-Z gate, it applies a phase flip to the qubit.
-- **H gate**: Creates a superposition of two states.
-- **CX (Controlled Not) gate**: It flips the target state if the control state is 1. It is used here to generate entanglement.
+- **X Gate**: Also known as a Pauli-X gate, it flips the state of a qubit. (ALT+X)
+- **Z Gate**: Known as a Pauli-Z gate, it applies a phase flip to the qubit. (ALT+Z)
+- **H Gate**: Creates a superposition of two states. (ALT+H)
+- **CX (Controlled Not) Gate**: Flips the target state if the control state is 1. Used to generate entanglement. (ALT+C)
+- **M (Measurement) Gate**: Collapses a superposition state into a definite basis state. (ALT+M)
 
 ## Libraries Used
 
@@ -101,7 +112,7 @@ Quanta-Quest/
 
 ## Future Steps
 
-We are committed to leveling up the game, adding more quantum operations. We wish to include topics like quantum Fourier transformation, Shor's Algorithm and find a possible way to implement quantum error correction. After finishing the educational part, we will also focus on the graphics design to increase the attractiveness of the game.
+We are committed to leveling up the game with more advanced quantum concepts. Planned topics include quantum Fourier transformation, Shor's Algorithm, and Grover's search. We also aim to improve the graphics and add audio cues for a more immersive experience.
 
 ## Acknowledgements
 
