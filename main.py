@@ -3,6 +3,7 @@ Platformer Game
 """
 import arcade
 import arcade.gui
+from arcade.camera import Camera2D
 import os
 import random
 from gate_manipulator import gate_on_state
@@ -65,9 +66,10 @@ def load_texture_vpair(filename):
     """
     Load a texture pair, with the second being a mirror image.
     """
+    tex = arcade.load_texture(filename)
     return [
-        arcade.load_texture(filename),
-        arcade.load_texture(filename, flipped_vertically=True),
+        tex,
+        tex.flip_vertically(),
     ]
 
 
@@ -99,7 +101,6 @@ class QuantumBall(arcade.Sprite):
 
         self.state = idle_state
         self.texture = self.textures[self.state]
-        self.hit_box = self.texture.hit_box_points
 
     def update_animation(self, delta_time: float = 1 / 60):
         self.texture = self.textures[self.state]
@@ -108,15 +109,15 @@ class QuantumBall(arcade.Sprite):
 class Messagebox(arcade.gui.UIMessageBox):
     def __init__(self, message, game):
         text_height = max(len(message) // TEXT_WIDTH + 150, 180)
-        super().__init__(width=TEXT_WIDTH, 
-                         height=text_height, 
-                         message_text=message, 
-                         buttons=["Okay"],
-                         callback=self.on_message_box_close)
+        super().__init__(width=TEXT_WIDTH,
+                         height=text_height,
+                         message_text=message,
+                         buttons=["Okay"])
         self.game = game
         self.game.can_move = False
         self.game.is_message = self
-    def on_message_box_close(self, button_text):
+
+    def on_action(self, event):
         self.game.can_move = True
         self.game.is_message = None
 
@@ -125,9 +126,10 @@ def load_texture_pair(filename):
     """
     Load a texture pair, with the second being a mirror image.
     """
+    tex = arcade.load_texture(filename)
     return [
-        arcade.load_texture(filename),
-        arcade.load_texture(filename, flipped_horizontally=True),
+        tex,
+        tex.flip_horizontally(),
     ]
 
 
@@ -167,8 +169,6 @@ class PlayerCharacter(arcade.Sprite):
 
         # Set the initial texture
         self.texture = self.idle_texture_pair[0]
-
-        self.hit_box = self.texture.hit_box_points
 
     def update_animation(self, delta_time: float = 1 / 60):
         # Figure out if we need to flip face left or right
@@ -264,13 +264,13 @@ class GameView(arcade.View):
         self.scene = arcade.Scene()
 
         # Set up the Game Camera
-        self.camera = arcade.Camera(self.window.width, self.window.height)
+        self.camera = Camera2D()
 
         self.background = arcade.load_texture("./main.png")
 
         # Set up the GUI Camera
 
-        self.gui_camera = arcade.Camera(self.window.width, self.window.height)
+        self.gui_camera = Camera2D()
 
         # Initialize Scene
 
@@ -380,7 +380,10 @@ class GameView(arcade.View):
 
         self.clear()
 
-        arcade.draw_lrwh_rectangle_textured(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
+        arcade.draw_texture_rect(
+            self.background,
+            arcade.LRBT(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT),
+        )
 
         self.camera.use()
 
@@ -396,11 +399,14 @@ class GameView(arcade.View):
         for j,(g,v) in enumerate(self.collected_gates.items()):
             image = self.score_images[g]
             for i in range(v):
-                arcade.draw_texture_rectangle((1.5 * j + 1) * SCORE_X,
-                                              SCORE_Y - 100 * i,
-                                              image.width // 2,
-                                              image.height // 2,
-                                              image)
+                cx = (1.5 * j + 1) * SCORE_X
+                cy = SCORE_Y - 100 * i
+                hw = image.width // 4
+                hh = image.height // 4
+                arcade.draw_texture_rect(
+                    image,
+                    arcade.LRBT(cx - hw, cx + hw, cy - hh, cy + hh),
+                )
 
         self.manager.draw()
 
@@ -494,9 +500,13 @@ class GameView(arcade.View):
                         message_text=(
                             "Note that the upper ball has now become non-entangled. Complete the teleportation by figuring out the correct gate (X/Z/H) that will convert the upper ball into the black ball we wanted to teleport. Answer by clicking one of the buttons."
                         ),
-                        callback=self.on_final_message_close,
                         buttons=["X gate", "Z gate", "H gate"]
                     )
+
+                    @message_box.event("on_action")
+                    def on_action(event):
+                        self.on_final_message_close(event.action)
+
                     self.manager.add(message_box)
             if ((self.scene["States"].index(hit_state) == STATE_NUMBER + 7 
                  or self.scene["States"].index(hit_state) == STATE_NUMBER + 8)
@@ -535,9 +545,11 @@ class GameView(arcade.View):
             screen_center_x = 0
         if screen_center_y < 0:
             screen_center_y = 0
-        player_centered = screen_center_x, screen_center_y
 
-        self.camera.move_to(player_centered)
+        self.camera.position = (
+            screen_center_x + self.camera.viewport_width / 2,
+            screen_center_y + self.camera.viewport_height / 2,
+        )
 
 
     def on_update(self, delta_time):
@@ -665,10 +677,9 @@ class PauseMenu(arcade.View):
         """Draw the menu"""
         self.clear()
         image = arcade.load_texture("opening_cropped.png")
-        arcade.draw_texture_rectangle(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-            SCREEN_WIDTH, SCREEN_HEIGHT,
-            image
+        arcade.draw_texture_rect(
+            image,
+            arcade.LRBT(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT),
         )
         arcade.draw_text(
             "Press enter or click to resume the game.\n\nPress Escape to restart the game.\n\nPress Q to quit.",
@@ -709,10 +720,9 @@ class MainMenu(arcade.View):
         """Draw the menu"""
         self.clear()
         image = arcade.load_texture("opening_cropped.png")
-        arcade.draw_texture_rectangle(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-            SCREEN_WIDTH, SCREEN_HEIGHT,
-            image
+        arcade.draw_texture_rect(
+            image,
+            arcade.LRBT(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT),
         )
         arcade.draw_text(
             "QUANTA QUEST",

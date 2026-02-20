@@ -43,18 +43,15 @@ After mastering various quantum gates and learning about superposition and entan
 - NumPy: For numerical calculations.
 
 
-## Installation:
-Install the qiskit and arcade library
+## Installation
 
-```
-pip install qiskit arcade 
-```
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
 
-Download and run
 ```
 git clone https://github.com/sahnawaz-live/Quanta-Quest
 cd Quanta-Quest
-python main.py
+uv sync
+uv run python main.py
 ```
 ## Example of the Game 
 Screenshots of the game

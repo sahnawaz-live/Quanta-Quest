@@ -1,0 +1,15 @@
+[project]
+name = "quanta-quest"
+version = "1.0.0"
+description = "An educational game that teaches quantum computing concepts through interactive gameplay"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "arcade>=3.3",
+    "qiskit>=2.0",
+    "numpy>=1.24",
+]
+
+[project.scripts]
+quanta-quest = "main:main"
