@@ -54,7 +54,22 @@ GATE_INTERVAL = 5
 GATE_NUMBER = 4
 STATE_INTERVAL = 5
 STATE_NUMBER = 4
-MAP_WIDTH = STATE_INTERVAL * STATE_NUMBER + GATE_INTERVAL * (GATE_NUMBER + 0.5)
 BALL_SCALING = 0.8
 GATE_SCALING = 0.9
 PAIR_DISTANCE = 200
+
+# Original zones span
+ORIGINAL_ZONES = STATE_INTERVAL * STATE_NUMBER + GATE_INTERVAL * (GATE_NUMBER + 0.5)
+
+# New concept zones (7 new zones after original content)
+NEW_ZONE_COUNT = 7
+NEW_ZONE_SPACING = 6  # grid units between new zones
+NEW_ZONE_START = ORIGINAL_ZONES + 2  # small gap after original content
+
+# Total map width including new zones
+MAP_WIDTH = NEW_ZONE_START + NEW_ZONE_COUNT * NEW_ZONE_SPACING
+
+
+def new_zone_x(zone_index):
+    """Return the x position (in pixels) of the center of a new zone."""
+    return (NEW_ZONE_START + zone_index * NEW_ZONE_SPACING) * GRID_PIXEL_SIZE
