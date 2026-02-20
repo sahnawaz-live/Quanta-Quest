@@ -1,0 +1,75 @@
+"""Game constants for Quanta Quest."""
+
+import arcade
+
+# Screen
+SCREEN_WIDTH = 1500
+SCREEN_HEIGHT = 1000
+SCORE_Y = SCREEN_HEIGHT - 50
+SCORE_X = 70
+DEFAULT_LINE_HEIGHT = 45
+SCREEN_TITLE = "Quanta Quest"
+
+# Sprite scaling
+CHARACTER_SCALING = 1
+TILE_SCALING = 1
+COIN_SCALING = 0.5
+SPRITE_PIXEL_SIZE = 128
+GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
+NUM_CRATES = 6
+CRATE_HEIGHT = 160
+CRATE_OFFSET = 100
+
+# Player movement
+PLAYER_MOVEMENT_SPEED = 5
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 22
+RIGHT_FACING = 0
+LEFT_FACING = 1
+PLAYER_START_X = SPRITE_PIXEL_SIZE * TILE_SCALING * 1
+PLAYER_START_Y = SPRITE_PIXEL_SIZE * TILE_SCALING * 1
+
+# Button layout
+BUTTON_POS_X = SCREEN_WIDTH // 2 - 150
+BUTTON_WIDTH = 300
+BUTTON_HEIGHT = 100
+DISTANCE = 150
+BUTTON_POS_Y = SCREEN_HEIGHT // 2
+
+# Enemy
+ENEMY_SIZE = 2
+ENEMY_SPEED = 2
+BULLET_SPEED = 5
+BULLET_DAMAGE = 1
+ENEMY_HEALTH = 3
+
+# Misc
+SHOOT_INTERVAL = 20
+BGCOLOR = arcade.color.JET
+FGCOLOR = arcade.color.WHITE
+TEXT_WIDTH = 400
+
+# Gate and state layout
+GATE_INTERVAL = 5
+GATE_NUMBER = 4
+STATE_INTERVAL = 5
+STATE_NUMBER = 4
+BALL_SCALING = 0.8
+GATE_SCALING = 0.9
+PAIR_DISTANCE = 200
+
+# Original zones span
+ORIGINAL_ZONES = STATE_INTERVAL * STATE_NUMBER + GATE_INTERVAL * (GATE_NUMBER + 0.5)
+
+# New concept zones (7 new zones after original content)
+NEW_ZONE_COUNT = 7
+NEW_ZONE_SPACING = 6  # grid units between new zones
+NEW_ZONE_START = ORIGINAL_ZONES + 2  # small gap after original content
+
+# Total map width including new zones
+MAP_WIDTH = NEW_ZONE_START + NEW_ZONE_COUNT * NEW_ZONE_SPACING
+
+
+def new_zone_x(zone_index):
+    """Return the x position (in pixels) of the center of a new zone."""
+    return (NEW_ZONE_START + zone_index * NEW_ZONE_SPACING) * GRID_PIXEL_SIZE
