@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "quanta-quest"
 version = "1.0.0"
@@ -12,4 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-quanta-quest = "main:main"
+quanta-quest = "quanta_quest:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/quanta_quest"]

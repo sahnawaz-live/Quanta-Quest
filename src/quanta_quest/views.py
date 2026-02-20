@@ -1,109 +1,36 @@
-"""
-Platformer Game
-"""
+"""Game views for Quanta Quest."""
+
+import random
+
 import arcade
 import arcade.gui
 from arcade.camera import Camera2D
-import os
-import random
-from gate_manipulator import gate_on_state
 
-# Constants
-SCREEN_WIDTH = 1500
-SCREEN_HEIGHT = 1000
-SCORE_Y = SCREEN_HEIGHT - 50
-SCORE_X = 70
-DEFAULT_LINE_HEIGHT = 45
-SCREEN_TITLE = "Quanta Quest"
-
-# Constants used to scale our sprites from their original size
-CHARACTER_SCALING = 1
-TILE_SCALING = 1
-COIN_SCALING = 0.5
-SPRITE_PIXEL_SIZE = 128
-GRID_PIXEL_SIZE = SPRITE_PIXEL_SIZE * TILE_SCALING
-NUM_CRATES = 6
-CRATE_HEIGHT = 160
-CRATE_OFFSET = 100
-
-# Movement speed of player, in pixels per frame
-PLAYER_MOVEMENT_SPEED = 5
-GRAVITY = 1
-PLAYER_JUMP_SPEED = 22
-RIGHT_FACING = 0
-LEFT_FACING = 1
-PLAYER_START_X = SPRITE_PIXEL_SIZE * TILE_SCALING * 1
-PLAYER_START_Y = SPRITE_PIXEL_SIZE * TILE_SCALING * 1
-
-BUTTON_POS_X = SCREEN_WIDTH // 2 - 150
-BUTTON_WIDTH = 300
-BUTTON_HEIGHT = 100
-DISTANCE = 150
-BUTTON_POS_Y = SCREEN_HEIGHT // 2
-
-ENEMY_SIZE = 2
-ENEMY_SPEED = 2
-BULLET_SPEED = 5
-BULLET_DAMAGE = 1
-ENEMY_HEALTH = 3
-
-SHOOT_INTERVAL = 20
-BGCOLOR = arcade.color.JET
-FGCOLOR = arcade.color.WHITE
-TEXT_WIDTH = 400
-
-GATE_INTERVAL = 5
-GATE_NUMBER = 4
-STATE_INTERVAL = 5
-STATE_NUMBER = 4
-
-MAP_WIDTH = STATE_INTERVAL * STATE_NUMBER + GATE_INTERVAL * (GATE_NUMBER + 0.5)
-BALL_SCALING = 0.8
-GATE_SCALING = 0.9
-PAIR_DISTANCE = 200
-
-def load_texture_vpair(filename):
-    """
-    Load a texture pair, with the second being a mirror image.
-    """
-    tex = arcade.load_texture(filename)
-    return [
-        tex,
-        tex.flip_vertically(),
-    ]
-
-
-class QuantumGate(arcade.Sprite):
-    def __init__(self,name):
-        super().__init__()
-        self.name = name
-        self.scale = GATE_SCALING
-        self.texture = arcade.load_texture("score_{}.png".format(name))
-
-
-
-class QuantumBall(arcade.Sprite):
-
-    def __init__(self, idle_state):
-
-        # Set up parent class
-        super().__init__()
-
-        # Load textures for idle standing
-        self.scale = BALL_SCALING
-        self.master = None
-        self.message_index = None
-        self.textures = []
-        self.textures += load_texture_vpair("ball_white.png")
-        self.textures += load_texture_vpair("ball_black.png")
-        self.textures += load_texture_vpair("ball_up_up.png")
-        self.textures += load_texture_vpair("ball_up_down.png")
-
-        self.state = idle_state
-        self.texture = self.textures[self.state]
-
-    def update_animation(self, delta_time: float = 1 / 60):
-        self.texture = self.textures[self.state]
+from quanta_quest.assets import asset_path
+from quanta_quest.constants import (
+    BALL_SCALING,
+    BGCOLOR,
+    GATE_INTERVAL,
+    GATE_NUMBER,
+    GRAVITY,
+    GRID_PIXEL_SIZE,
+    MAP_WIDTH,
+    PAIR_DISTANCE,
+    PLAYER_JUMP_SPEED,
+    PLAYER_MOVEMENT_SPEED,
+    PLAYER_START_X,
+    PLAYER_START_Y,
+    SCORE_X,
+    SCORE_Y,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    STATE_INTERVAL,
+    STATE_NUMBER,
+    TEXT_WIDTH,
+    TILE_SCALING,
+)
+from quanta_quest.gate_manipulator import gate_on_state
+from quanta_quest.sprites import PlayerCharacter, QuantumBall, QuantumGate
 
 
 class Messagebox(arcade.gui.UIMessageBox):
@@ -121,82 +48,6 @@ class Messagebox(arcade.gui.UIMessageBox):
         self.game.can_move = True
         self.game.is_message = None
 
-
-def load_texture_pair(filename):
-    """
-    Load a texture pair, with the second being a mirror image.
-    """
-    tex = arcade.load_texture(filename)
-    return [
-        tex,
-        tex.flip_horizontally(),
-    ]
-
-
-class PlayerCharacter(arcade.Sprite):
-    """Player Sprite"""
-
-    def __init__(self):
-
-        # Set up parent class
-        super().__init__()
-
-        # Default to face-right
-        self.character_face_direction = RIGHT_FACING
-
-        # Used for flipping between image sequences
-        self.cur_texture = 0
-        self.scale = CHARACTER_SCALING
-
-        # Track our state
-        self.jumping = False
-
-
-        # Images from Kenney.nl's Asset Pack 3
-        main_path = ":resources:images/animated_characters/female_person/femalePerson"
-
-        # Load textures for idle standing
-        self.idle_texture_pair = load_texture_pair(f"{main_path}_idle.png")
-        self.jump_texture_pair = load_texture_pair(f"{main_path}_jump.png")
-        self.fall_texture_pair = load_texture_pair(f"{main_path}_fall.png")
-
-        # Load textures for walking
-        self.walk_textures = []
-        for i in range(8):
-            texture = load_texture_pair(f"{main_path}_walk{i}.png")
-            self.walk_textures.append(texture)
-
-
-        # Set the initial texture
-        self.texture = self.idle_texture_pair[0]
-
-    def update_animation(self, delta_time: float = 1 / 60):
-        # Figure out if we need to flip face left or right
-        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
-            self.character_face_direction = LEFT_FACING
-        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
-            self.character_face_direction = RIGHT_FACING
-
-        # Jumping animation
-        if self.change_y > 0:
-            self.texture = self.jump_texture_pair[self.character_face_direction]
-            return
-        elif self.change_y < 0:
-            self.texture = self.fall_texture_pair[self.character_face_direction]
-            return
-
-        # Idle animation
-        if self.change_x == 0:
-            self.texture = self.idle_texture_pair[self.character_face_direction]
-            return
-
-        # Walking animation
-        self.cur_texture += 1
-        if self.cur_texture > 7:
-            self.cur_texture = 0
-        self.texture = self.walk_textures[self.cur_texture][
-            self.character_face_direction
-        ]
 
 class GameView(arcade.View):
     """
@@ -227,15 +78,12 @@ class GameView(arcade.View):
         # A Camera that can be used for scrolling the screen
         self.camera = None
 
-
         # A Camera that can be used to draw GUI elements
-
         self.gui_camera = None
 
-        self.show_instruction = [True] * 10;
+        self.show_instruction = [True] * 10
 
         # Keep track of the score
-
 
         self.left_pressed = False
         self.right_pressed = False
@@ -254,25 +102,23 @@ class GameView(arcade.View):
         self.hurt_sound = arcade.load_sound(":resources:sounds/explosion2.wav")
 
         self.background = None
-        self.collected_gates = {"X":0, "Z":0, "H":0, "C":0}
-        self.score_images = {"X": arcade.load_texture("score_X.png"),
-                             "Z": arcade.load_texture("score_Z.png"), 
-                             "H": arcade.load_texture("score_H.png"),
-                             "C": arcade.load_texture("score_C.png")
-                             }
+        self.collected_gates = {"X": 0, "Z": 0, "H": 0, "C": 0}
+        self.score_images = {
+            "X": arcade.load_texture(asset_path("score_X.png")),
+            "Z": arcade.load_texture(asset_path("score_Z.png")),
+            "H": arcade.load_texture(asset_path("score_H.png")),
+            "C": arcade.load_texture(asset_path("score_C.png")),
+        }
 
         self.scene = arcade.Scene()
 
         # Set up the Game Camera
         self.camera = Camera2D()
 
-        self.background = arcade.load_texture("./main.png")
+        self.background = arcade.load_texture(asset_path("main.png"))
 
         # Set up the GUI Camera
-
         self.gui_camera = Camera2D()
-
-        # Initialize Scene
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = PlayerCharacter()
@@ -299,8 +145,8 @@ class GameView(arcade.View):
         self.init_ball = self.scene["States"][0]
 
         for x in range(2):
-            state1 = QuantumBall(2*(1-x))
-            state2 = QuantumBall(x*2)
+            state1 = QuantumBall(2 * (1 - x))
+            state2 = QuantumBall(x * 2)
             state1.scale = 1.2 * BALL_SCALING
             state2.master = state1
             state2.message_index = STATE_NUMBER + x
@@ -335,7 +181,6 @@ class GameView(arcade.View):
         self.scene.add_sprite("Walls", wall)
         self.end_timer = 0
 
-
         state1 = QuantumBall(0)
         state2 = QuantumBall(4)
         state2.message_index = STATE_NUMBER + 3
@@ -351,9 +196,8 @@ class GameView(arcade.View):
         wall.center_y = state1.center_y - 120
         self.scene.add_sprite("Walls", wall)
 
-
-        for x in range(1, GATE_NUMBER+1):
-            gate = QuantumGate(["X","Z","H","C"][x-1])
+        for x in range(1, GATE_NUMBER + 1):
+            gate = QuantumGate(["X", "Z", "H", "C"][x - 1])
             gate.center_x = x * STATE_INTERVAL * GRID_PIXEL_SIZE
             gate.center_y = PLAYER_START_Y + 32
             self.scene.add_sprite("Gates", gate)
@@ -363,17 +207,16 @@ class GameView(arcade.View):
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
         )
-        self.show_instruction_challenges = [True]*4
+        self.show_instruction_challenges = [True] * 4
         self.end_of_map = MAP_WIDTH * GRID_PIXEL_SIZE
         self.time = 0
 
         self.end_of_map_sprite = arcade.Sprite(
-                ":resources:images/tiles/signExit.png", TILE_SCALING
-            )
+            ":resources:images/tiles/signExit.png", TILE_SCALING
+        )
         self.end_of_map_sprite.center_x = self.end_of_map
         self.end_of_map_sprite.center_y = PLAYER_START_Y
         self.scene.add_sprite("Items", self.end_of_map_sprite)
-
 
     def on_draw(self):
         """Render the screen."""
@@ -391,12 +234,10 @@ class GameView(arcade.View):
         self.scene.draw()
 
         # Activate the GUI camera before drawing GUI elements
-
         self.gui_camera.use()
 
         # Draw our score on the screen, scrolling it with the viewport
-
-        for j,(g,v) in enumerate(self.collected_gates.items()):
+        for j, (g, v) in enumerate(self.collected_gates.items()):
             image = self.score_images[g]
             for i in range(v):
                 cx = (1.5 * j + 1) * SCORE_X
@@ -409,7 +250,6 @@ class GameView(arcade.View):
                 )
 
         self.manager.draw()
-
 
     def process_keychange(self):
         """
@@ -424,7 +264,6 @@ class GameView(arcade.View):
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
                 self.jump_needs_reset = True
                 arcade.play_sound(self.jump_sound)
-
 
         # Process left/right
         if self.right_pressed and not self.left_pressed:
@@ -448,7 +287,7 @@ class GameView(arcade.View):
         elif key == arcade.key.ESCAPE:
             pause_view = PauseMenu(self)
             self.window.show_view(pause_view)
-        elif key == arcade.key.ENTER and self.is_message != None:
+        elif key == arcade.key.ENTER and self.is_message is not None:
             self.manager.remove(self.is_message)
             self.can_move = True
             self.is_message = None
@@ -482,13 +321,13 @@ class GameView(arcade.View):
                 self.collected_gates['H'] -= 1
                 arcade.play_sound(self.shoot_sound)
             if (key == arcade.key.C and (modifiers & arcade.key.MOD_ALT)
-                and hit_state.master != None and self.collected_gates['C'] > 0
+                and hit_state.master is not None and self.collected_gates['C'] > 0
                 ):
                 hit_state.state = gate_on_state(hit_state.state, 'C', hit_state.master.state)
                 self.collected_gates['C'] -= 1
                 arcade.play_sound(self.shoot_sound)
-            if (self.scene["States"].index(hit_state) == STATE_NUMBER + 4 
-                and self.show_instruction_challenges[1] == False 
+            if (self.scene["States"].index(hit_state) == STATE_NUMBER + 4
+                and self.show_instruction_challenges[1] is False
                 and key == arcade.key.M and (modifiers & arcade.key.MOD_ALT)
                 ):
                     self.scene["States"][STATE_NUMBER + 4].state = 4
@@ -508,7 +347,7 @@ class GameView(arcade.View):
                         self.on_final_message_close(event.action)
 
                     self.manager.add(message_box)
-            if ((self.scene["States"].index(hit_state) == STATE_NUMBER + 7 
+            if ((self.scene["States"].index(hit_state) == STATE_NUMBER + 7
                  or self.scene["States"].index(hit_state) == STATE_NUMBER + 8)
                 and key in (arcade.key.X, arcade.key.Z, arcade.key.H, arcade.key.C)
                 ):
@@ -518,8 +357,6 @@ class GameView(arcade.View):
                 else:
                     messagebox = Messagebox("Oops! That did't work. Try again?", self)
                     self.manager.add(messagebox)
-
-
 
         self.process_keychange()
 
@@ -532,9 +369,6 @@ class GameView(arcade.View):
             messagebox = Messagebox("Sadly, that wasn't the correct answer. You will have to start from the beginning.", self)
             self.manager.add(messagebox)
             self.end_timer = 1
-
-        
-
 
     def center_camera_to_player(self):
         screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
@@ -551,7 +385,6 @@ class GameView(arcade.View):
             screen_center_y + self.camera.viewport_height / 2,
         )
 
-
     def on_update(self, delta_time):
 
         self.time += 1
@@ -562,7 +395,8 @@ class GameView(arcade.View):
             state.update_animation()
 
         # Move the player with the physics engine
-        if self.can_move: self.physics_engine.update()
+        if self.can_move:
+            self.physics_engine.update()
 
         if self.player_sprite.center_x > PLAYER_START_X and self.show_instruction[0]:
             messagebox = Messagebox("Our explorer suddenly finds herself in the quantum world. In this world, information is stored in the colour and orientation of balls.", self)
@@ -570,7 +404,6 @@ class GameView(arcade.View):
 
             self.left_pressed, self.right_pressed, self.up_pressed, self.down_pressed, self.jump_needs_reset, self.shoot_pressed = [False] * 6
             self.show_instruction[0] = False
-
 
         if self.physics_engine.can_jump():
             self.player_sprite.can_jump = False
@@ -597,7 +430,7 @@ class GameView(arcade.View):
 
             arcade.play_sound(self.game_over)
 
-        if self.scene["States"][STATE_NUMBER + 4].state == 2 and self.show_instruction_challenges[1] == True:
+        if self.scene["States"][STATE_NUMBER + 4].state == 2 and self.show_instruction_challenges[1] is True:
             messagebox = Messagebox("Great. The next step is to perform a \"Bell measurement\" on the pair of lower balls, by pressing ALT+M on the lowest ball. This will transfer the entanglement to the lower balls.", self)
             self.manager.add(messagebox)
             self.show_instruction_challenges[1] = False
@@ -625,36 +458,37 @@ class GameView(arcade.View):
             self.window.show_view(game_over_view)
 
         state_hit_list = arcade.check_for_collision_with_list(
-                    self.player_sprite, self.scene["States"]
-                )
+            self.player_sprite, self.scene["States"]
+        )
         for state in state_hit_list:
-            if state.message_index != None:
-                message = ["The balls can be black or white or some combination of them. The balls can be upright or upside down. The balls can be modified by applying gates on them.",
-                           "Press Alt + X to apply the X gate on this state. You will find that it flips the colour.",
-                           "Press Alt + Z to apply the Z gate. You will find that it rotates the black ball but keeps the white ball unchanged.",
-                           "Press Alt + H to apply the Hadamard gate. You will find that it creates a mixture of both colours.",
-                           "Information can also be stored in pair of balls. The upper one acts as the master ball. Press Alt + C to apply the CNOT gate on the lower ball. It changes the colour of the lower ball if the master ball is black, otherwise leaves the lower ball unchanged.",
-                           "The next step is to create an \"entangled\" pair of balls. This is done by first applying an H gate on the master ball, and then applying a CNOT gate on the lower ball. Try it!",
-                           "The final step is to teleport a black ball to the top of the screen. For this, we have provided you an entangled pair (the two upper balls). First, flip the colour of the lowest ball by applying the appropriate gate.",
-                           "Care to complete a challenge before finishing the game? Apply a single gate on any one of the balls to make them identical.",
-                           ][state.message_index]
+            if state.message_index is not None:
+                message = [
+                    "The balls can be black or white or some combination of them. The balls can be upright or upside down. The balls can be modified by applying gates on them.",
+                    "Press Alt + X to apply the X gate on this state. You will find that it flips the colour.",
+                    "Press Alt + Z to apply the Z gate. You will find that it rotates the black ball but keeps the white ball unchanged.",
+                    "Press Alt + H to apply the Hadamard gate. You will find that it creates a mixture of both colours.",
+                    "Information can also be stored in pair of balls. The upper one acts as the master ball. Press Alt + C to apply the CNOT gate on the lower ball. It changes the colour of the lower ball if the master ball is black, otherwise leaves the lower ball unchanged.",
+                    "The next step is to create an \"entangled\" pair of balls. This is done by first applying an H gate on the master ball, and then applying a CNOT gate on the lower ball. Try it!",
+                    "The final step is to teleport a black ball to the top of the screen. For this, we have provided you an entangled pair (the two upper balls). First, flip the colour of the lowest ball by applying the appropriate gate.",
+                    "Care to complete a challenge before finishing the game? Apply a single gate on any one of the balls to make them identical.",
+                ][state.message_index]
 
                 if self.show_instruction[state.message_index + 1]:
                     messagebox = Messagebox(message, self)
                     self.manager.add(messagebox)
                     self.show_instruction[state.message_index + 1] = False
 
-
         gate_hit_list = arcade.check_for_collision_with_list(
-                    self.player_sprite, self.scene["Gates"]
-                )
+            self.player_sprite, self.scene["Gates"]
+        )
 
         for gate in gate_hit_list:
-            message = ["You have collected two X gates. You will learn how to use it very soon. You will need these gates later, so keep them handy.",
-                       "You have collected two Z gates. You will learn how to use it very soon.",
-                       "You have collected two Hadamard gates. You will learn how to use it very soon.",
-                       "You have collected two CNOT gates, which, unlike the other gates, only act on pairs of balls. You will learn how to use it very soon.",
-                       ][GATE_NUMBER - len(self.scene["Gates"])]
+            message = [
+                "You have collected two X gates. You will learn how to use it very soon. You will need these gates later, so keep them handy.",
+                "You have collected two Z gates. You will learn how to use it very soon.",
+                "You have collected two Hadamard gates. You will learn how to use it very soon.",
+                "You have collected two CNOT gates, which, unlike the other gates, only act on pairs of balls. You will learn how to use it very soon.",
+            ][GATE_NUMBER - len(self.scene["Gates"])]
 
             messagebox = Messagebox(message, self)
             self.manager.add(messagebox)
@@ -665,7 +499,7 @@ class GameView(arcade.View):
 
 class PauseMenu(arcade.View):
 
-    def __init__(self,prev_view):
+    def __init__(self, prev_view):
         super().__init__()
         self.prev_view = prev_view
 
@@ -676,7 +510,7 @@ class PauseMenu(arcade.View):
     def on_draw(self):
         """Draw the menu"""
         self.clear()
-        image = arcade.load_texture("opening_cropped.png")
+        image = arcade.load_texture(asset_path("opening_cropped.png"))
         arcade.draw_texture_rect(
             image,
             arcade.LRBT(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT),
@@ -694,7 +528,6 @@ class PauseMenu(arcade.View):
             width=1000,
             align='left',
         )
-
 
     def on_mouse_press(self, x, y, button, modifiers):
         self.window.show_view(self.prev_view)
@@ -719,7 +552,7 @@ class MainMenu(arcade.View):
     def on_draw(self):
         """Draw the menu"""
         self.clear()
-        image = arcade.load_texture("opening_cropped.png")
+        image = arcade.load_texture(asset_path("opening_cropped.png"))
         arcade.draw_texture_rect(
             image,
             arcade.LRBT(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT),
@@ -764,9 +597,7 @@ class MainMenu(arcade.View):
             align='left',
         )
 
-
     def on_mouse_press(self, x, y, button, modifiers):
-
         game_view = GameView()
         self.window.show_view(game_view)
 
@@ -801,14 +632,3 @@ class GameOverView(arcade.View):
         """Use a mouse press to advance to the 'game' view."""
         game_view = GameView()
         self.window.show_view(game_view)
-
-
-def main():
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    menu_view = MainMenu()
-    window.show_view(menu_view)
-    arcade.run()
-
-
-if __name__ == "__main__":
-    main()
